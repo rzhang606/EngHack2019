@@ -136,17 +136,6 @@ export default {
       "washrooms_markers": {},
       "garbage_markers": {},
       "events_markers": {}
-        // "food":{},
-        // "shopping":{},
-        // "washrooms":{},
-        // "garbage":{},
-        // "999": {
-        //   "position": {
-        //     "lat": 43.4643,
-        //     "lng": -80.5204
-        //   }
-        // }
-      // }
     }
   },
   computed:{
