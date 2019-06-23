@@ -4,7 +4,8 @@
   <input class = "checkbox" v-model="included.food" type="checkbox">Food</input>
   <input class = "checkbox" v-model="included.shopping" type="checkbox">Shopping</input>
   <input class = "checkbox" v-model="included.washrooms" type="checkbox">Washrooms</input>
-  <input class = "checkbox" v-model="included.garbage" type="checkbox">Garbage Cans</input><br><br>
+  <input class = "checkbox" v-model="included.garbage" type="checkbox">Garbage Cans</input>
+  <input class = "checkbox" v-model="included.events" type="checkbox">Events</input><br><br><br><br>
     <GmapMap ref="mapRef" class="map"
   :center="{lat:latitude, lng:longitude}"
   :zoom="20"
@@ -52,6 +53,15 @@
       :icon="{url: require('../assets/washrooms.png')}"
       @click="center=toggleInfoWindow(m, index)"
     />
+    <GmapMarker
+      :key="index"
+      v-for="(m, index) in computed_events_markers"
+      :position="m.position"
+      :clickable="true"
+      :draggable="false"
+      :icon="{url: require('../assets/events.png')}"
+      @click="center=toggleInfoWindow(m, index)"
+    />
     
 </GmapMap>
 <!-- <div>{{computed_markers}}</div> -->
@@ -84,6 +94,7 @@ export default {
         "shopping": true,
         "washrooms": true,
         "garbage": true,
+        "events": true
       },
       "infoTitle": '',
       "infoContent": '',
@@ -103,7 +114,8 @@ export default {
       "food_markers": {},
       "shopping_markers": {},
       "washrooms_markers": {},
-      "garbage_markers": {}
+      "garbage_markers": {},
+      "events_markers": {}
         // "food":{},
         // "shopping":{},
         // "washrooms":{},
@@ -137,6 +149,11 @@ export default {
       if(!this.included.washrooms)
         return {};
       return this.washrooms_markers;
+    },
+    computed_events_markers: function(){
+      if(!this.included.washrooms)
+        return {};
+      return this.events_markers;
     }
   },
   methods:{
@@ -171,6 +188,8 @@ export default {
           _this.washrooms_markers[event.id] = input;
         else if(event.fields.Type == "garbage")
           _this.garbage_markers[event.id] = input;
+        else if(event.fields.Type == "events")
+          _this.events_markers[event.id] = input;
       _this.$forceUpdate();
         // console.log(_this.markers[event.id]); 
       }
@@ -236,7 +255,7 @@ a {
   display: inline-flex;
   padding: 5px;
   font-size: xx-large;
-  width: 200px;
+  width: 150px;
   height: 40px;
   font-size-adjust: inherit;
   margin:auto;
