@@ -1,28 +1,69 @@
 <template>
-  <div class="hello">
-    <GmapMap ref="mapRef"
+  <div>
+    <img src="../assets/logo.png" class="app">
+  <input class = "checkbox" v-model="included.food" type="checkbox">Food</input>
+  <input class = "checkbox" v-model="included.shopping" type="checkbox">Shopping</input>
+  <input class = "checkbox" v-model="included.washrooms" type="checkbox">Washrooms</input>
+  <input class = "checkbox" v-model="included.garbage" type="checkbox">Garbage Cans</input><br><br>
+    <GmapMap ref="mapRef" class="map"
   :center="{lat:latitude, lng:longitude}"
-  :zoom="15"
+  :zoom="20"
   map-type-id="terrain"
-  style="width: 800px; height: 600px"
+  style="width: 100%; height: 700px"
 >
-    <GmapMarker
+<gmap-info-window :options="infoOptions" :position="infoWindowPos" :opened="infoWinOpen" @closeclick="infoWinOpen=false">
+            <div>{{infoTitle}}</div>
+            <div>{{infoContent}}</div>
+      </gmap-info-window>
+    
+        <GmapMarker
       :key="index"
-      v-for="(m, index) in markers"
+      v-for="(m, index) in computed_food_markers"
       :position="m.position"
       :clickable="true"
       :draggable="true"
-      @click="center=m.position"
+      :icon="{url: require('../assets/food.png')}"
+      @click="center=toggleInfoWindow(m, index)"
     />
+    <GmapMarker
+      :key="index"
+      v-for="(m, index) in computed_shopping_markers"
+      :position="m.position"
+      :clickable="true"
+      :draggable="true"
+      :icon="{url: require('../assets/shopping.png')}"
+      @click="center=toggleInfoWindow(m, index)"
+    />
+    <GmapMarker
+      :key="index"
+      v-for="(m, index) in computed_garbage_markers"
+      :position="m.position"
+      :clickable="true"
+      :draggable="true"
+      :icon="{url: require('../assets/garbage.png')}"
+      @click="center=toggleInfoWindow(m, index)"
+    />
+    <GmapMarker
+      :key="index"
+      v-for="(m, index) in computed_washrooms_markers"
+      :position="m.position"
+      :clickable="true"
+      :draggable="true"
+      :icon="{url: require('../assets/washrooms.png')}"
+      @click="center=toggleInfoWindow(m, index)"
+    />
+    
 </GmapMap>
-<div v-on:click="Update()">
-  CLICK
-</div>
-<div>{{markers}}</div>
+<!-- <div>{{computed_markers}}</div> -->
+<!-- <div>{{food_markers}}</div>
+<div>{{shopping_markers}}</div>
+<div>{{washrooms_markers}}</div>
+<div>{{garbage_markers}}</div> -->
   </div> 
 </template>
 
 <script>
+import VueGeolocation from 'vue-browser-geolocation';
 import {HTTP} from './/http-common';
 import Vue from 'vue'
 import * as VueGoogleMaps from 'vue2-google-maps'
@@ -32,57 +73,138 @@ Vue.use(VueGoogleMaps, {
     libraries: 'places'
   }
 })
+Vue.use(VueGeolocation);
 
 export default {
   name: 'HelloWorld',
   data () {
     return {
+      "included":{
+        "food": true,
+        "shopping": true,
+        "washrooms": true,
+        "garbage": true,
+      },
+      "infoTitle": '',
+      "infoContent": '',
+      "infoWindowPos": null,
+      "infoWinOpen": false,
+      "currentMidx": null,
+      //optional: offset infowindow so it visually sits nicely on top of our marker
+      "infoOptions": {
+          "pixelOffset": {
+          "width": 0,
+          "height": -35
+          }
+      },
       "latitude": 43.4643,
       "longitude": -80.5204,
 
-      "markers": {
-        "999": {
-          "position": {
-            "lat": 43.4643,
-            "lng": -80.5204
-          }
-        }
-      }
+      "food_markers": {},
+      "shopping_markers": {},
+      "washrooms_markers": {},
+      "garbage_markers": {}
+        // "food":{},
+        // "shopping":{},
+        // "washrooms":{},
+        // "garbage":{},
+        // "999": {
+        //   "position": {
+        //     "lat": 43.4643,
+        //     "lng": -80.5204
+        //   }
+        // }
+      // }
+    }
+  },
+  computed:{
+    computed_food_markers: function(){
+      if(!this.included.food)
+        return {};
+      return this.food_markers;
+    },
+    computed_shopping_markers: function(){
+      if(!this.included.shopping)
+        return {};
+      return this.shopping_markers;
+    },
+    computed_garbage_markers: function(){
+      if(!this.included.garbage)
+        return {};
+      return this.garbage_markers;
+    },
+    computed_washrooms_markers: function(){
+      if(!this.included.washrooms)
+        return {};
+      return this.washrooms_markers;
     }
   },
   methods:{
     Update(){
       var _this = this;
-      console.log(String(_this.longitude) + " " + String(_this.latitude))
+      // console.log(String(_this.longitude) + " " + String(_this.latitude))
       HTTP.post('', {
       "longitude": String(_this.longitude),
       "latitude": String(_this.latitude)
     })
     .then(function(response){
-      console.log(response)
+      // console.log(response)
       _this.directory = response.data.done;
       for (var i in response.data.distinctQueryResult.rows){
         var event = response.data.distinctQueryResult.rows[i];
-        _this.markers[event.id] = {
+        // _this.markers[event.fields.Type][event.id] 
+        var input = {
           "position":{
             "lat": event.fields.Latitude,
             "lng": event.fields.Longitude
-          }
+          },
+          "description": event.fields.Description,
+          "title": event.fields.Event,
+          "type": event.fields.Type,
+          "id": event.id
         }
+        if(event.fields.Type == "food")
+          _this.food_markers[event.id] = input;
+        else if(event.fields.Type == "shopping")
+          _this.shopping_markers[event.id] = input;
+        else if(event.fields.Type == "washrooms")
+          _this.washrooms_markers[event.id] = input;
+        else if(event.fields.Type == "garbage")
+          _this.garbage_markers[event.id] = input;
       _this.$forceUpdate();
-        console.log(_this.markers[event.id]); 
+        // console.log(_this.markers[event.id]); 
       }
     })
     .catch(e => {
       this.errors.push(e)
     })
-    console.log(_this.markers)
+    // console.log(_this.markers)
+    },
+    toggleInfoWindow: function(marker, idx) {
+            this.infoWindowPos = marker.position;
+            this.infoContent = marker.description;
+            this.infoTitle = marker.title;
+
+            //check if its the same marker that was selected if yes toggle
+            if (this.currentMidx == idx) {
+              this.infoWinOpen = !this.infoWinOpen;
+            }
+            //if different marker set infowindow to open and reset current marker index
+            else {
+              this.infoWinOpen = true;
+              this.currentMidx = idx;
+
+            }
     }
   },
   mounted(){
     this.$refs.mapRef.$mapPromise.then((map)=> {
       map.panTo({lat:this.latitude, lng:this.longitude})
+    }),
+    this.$getLocation().then(coordinates => {
+      console.log(coordinates);
     })
+    this.Update();
   }
 }
 </script>
@@ -102,5 +224,21 @@ li {
 }
 a {
   color: #42b983;
+}
+.app {
+  text-align: left;
+  display: inline-flex;
+}
+.map {
+  margin:auto
+}
+.checkbox {
+  display: inline-flex;
+  padding: 5px;
+  font-size: xx-large;
+  width: 200px;
+  height: 40px;
+  font-size-adjust: inherit;
+  margin:auto
 }
 </style>
