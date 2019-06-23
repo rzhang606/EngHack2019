@@ -1,11 +1,27 @@
 <template>
   <div>
     <img src="../assets/logo.png" class="app">
+  <div class="checks">
   <input class = "checkbox" v-model="included.food" type="checkbox">Food</input>
   <input class = "checkbox" v-model="included.shopping" type="checkbox">Shopping</input>
   <input class = "checkbox" v-model="included.washrooms" type="checkbox">Washrooms</input>
   <input class = "checkbox" v-model="included.garbage" type="checkbox">Garbage Cans</input>
-  <input class = "checkbox" v-model="included.events" type="checkbox">Events</input><br><br><br><br>
+  <input class = "checkbox" v-model="included.events" type="checkbox">Events</input><br><br>
+
+  </div><br>
+  <div class="app checks">Add Event: </div>
+  <input type="text" class="app checks" v-model="eventname"></input>
+  <div class="app checks">  Type: </div>
+  <select v-model="eventtype" class="app checks">
+    <option value="food">Food</option>
+    <option value="shopping">Shopping</option>
+    <option value="washrooms">Washrooms</option>
+    <option value="garbage">Garbage Can</option>
+    <option value="events">Event</option>
+  </select><br><br>
+  <div class="app checks">  Description: </div>
+  <input type="text" class="app checks w500" v-model="eventdescription"></input><br><br>
+  <div v-on:click="createEvent()" class="w500 button"> Create </div>
     <GmapMap ref="mapRef" class="map"
   :center="{lat:latitude, lng:longitude}"
   :zoom="20"
@@ -75,6 +91,7 @@
 <script>
 import VueGeolocation from 'vue-browser-geolocation';
 import {HTTP} from './/http-common';
+import {HTTP2} from './/http-common';
 import Vue from 'vue'
 import * as VueGoogleMaps from 'vue2-google-maps'
 Vue.use(VueGoogleMaps, {
@@ -89,6 +106,9 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
+      "eventname": "",
+      "eventtype": "",
+      "eventdescription": "",
       "included":{
         "food": true,
         "shopping": true,
@@ -157,6 +177,9 @@ export default {
     }
   },
   methods:{
+    maintain(){
+      setInterval(this.Update(), 10);
+    },
     Update(){
       var _this = this;
       // console.log(String(_this.longitude) + " " + String(_this.latitude))
@@ -166,7 +189,7 @@ export default {
     })
     .then(function(response){
       // console.log(response)
-      _this.directory = response.data.done;
+      // _this.directory = response.data.done;
       for (var i in response.data.distinctQueryResult.rows){
         var event = response.data.distinctQueryResult.rows[i];
         // _this.markers[event.fields.Type][event.id] 
@@ -214,16 +237,63 @@ export default {
               this.currentMidx = idx;
 
             }
+    },
+    createEvent(){
+      var _this = this;
+      // console.log(String(_this.longitude) + " " + String(_this.latitude))
+      HTTP2.post('', {
+      "event": _this.eventname,
+      "type": _this.eventtype,
+      "description": _this.eventdescription,
+      "longitude": String(_this.longitude),
+      "latitude": String(_this.latitude)
+    })
+    .then(function(response){
+      console.log(response)
+      // _this.directory = response.data.done;
+      // for (var i in response.data.distinctQueryResult.rows){
+      //   var event = response.data.distinctQueryResult.rows[i];
+      //   // _this.markers[event.fields.Type][event.id] 
+      //   var input = {
+      //     "position":{
+      //       "lat": event.fields.Latitude,
+      //       "lng": event.fields.Longitude
+      //     },
+      //     "description": event.fields.Description,
+      //     "title": event.fields.Event,
+      //     "type": event.fields.Type,
+      //     "id": event.id
+      //   }
+      //   if(event.fields.Type == "food")
+      //     _this.food_markers[event.id] = input;
+      //   else if(event.fields.Type == "shopping")
+      //     _this.shopping_markers[event.id] = input;
+      //   else if(event.fields.Type == "washrooms")
+      //     _this.washrooms_markers[event.id] = input;
+      //   else if(event.fields.Type == "garbage")
+      //     _this.garbage_markers[event.id] = input;
+      //   else if(event.fields.Type == "events")
+      //     _this.events_markers[event.id] = input;
+      // _this.$forceUpdate();
+        // console.log(_this.markers[event.id]); 
+      // }
+    })
+    .catch(e => {
+      this.errors.push(e)
+    })
+    // console.log(_this.markers)
     }
   },
   mounted(){
-    this.$refs.mapRef.$mapPromise.then((map)=> {
-      map.panTo({lat:this.latitude, lng:this.longitude})
-    }),
     this.$getLocation().then(coordinates => {
       console.log(coordinates);
-    })
-    this.Update();
+      this.latitude = coordinates.lat;
+      this.longitude = coordinates.lng;
+    });
+    this.$refs.mapRef.$mapPromise.then((map)=> {
+      map.panTo({lat:this.latitude, lng:this.longitude})
+    });
+    this.maintain();
   }
 }
 </script>
@@ -255,10 +325,29 @@ a {
   display: inline-flex;
   padding: 5px;
   font-size: xx-large;
-  width: 150px;
+  width: 40px;
   height: 40px;
-  font-size-adjust: inherit;
-  margin:auto;
+  /* font-size-adjust: inherit; */
+  margin:right;
   fill: #42b983;
+}
+.w500{
+  width:100%
+}
+.button{
+  align-content: center;
+  text-align: center;
+  height: 50px;
+  font-size: 30px;
+  border-radius: 10px;
+  border-width: 10px;
+  border-color: #42b983; 
+}
+.checks{
+  display: inline-flex;
+  font-size: 40px;
+  padding-left: 25px;
+  /* width: 50px; */
+  fill:#42b983;
 }
 </style>
