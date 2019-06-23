@@ -21,7 +21,7 @@
   </select><br><br>
   <div class="app checks">  Description: </div>
   <input type="text" class="app checks w500" v-model="eventdescription"></input><br><br>
-  <div v-on:click="createEvent()" class="w500 button"> Create </div>
+  <div v-on:click="createEvent()" class="w500 button"> Create </div><br><br>
     <GmapMap ref="mapRef" class="map"
   :center="{lat:latitude, lng:longitude}"
   :zoom="20"
@@ -311,7 +311,7 @@ a {
   margin:auto
 }
 .checkbox {
-  display: inline-flex;
+  display: inline-block;
   padding: 5px;
   font-size: xx-large;
   width: 40px;
@@ -329,11 +329,14 @@ a {
   height: 50px;
   font-size: 30px;
   border-radius: 10px;
-  border-width: 10px;
-  border-color: #42b983; 
+  background-color: rgb(34, 177, 76);
+  color: white;
+  font-family: Verdana, Geneva, sans-serif;
+  cursor: pointer;
+  font-style:
 }
 .checks{
-  display: inline-flex;
+  display: inline-block;
   font-size: 40px;
   padding-left: 25px;
   /* width: 50px; */
