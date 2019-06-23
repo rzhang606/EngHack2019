@@ -30,7 +30,7 @@
       v-for="(m, index) in computed_shopping_markers"
       :position="m.position"
       :clickable="true"
-      :draggable="true"
+      :draggable="false"
       :icon="{url: require('../assets/shopping.png')}"
       @click="center=toggleInfoWindow(m, index)"
     />
@@ -39,7 +39,7 @@
       v-for="(m, index) in computed_garbage_markers"
       :position="m.position"
       :clickable="true"
-      :draggable="true"
+      :draggable="false"
       :icon="{url: require('../assets/garbage.png')}"
       @click="center=toggleInfoWindow(m, index)"
     />
@@ -48,7 +48,7 @@
       v-for="(m, index) in computed_washrooms_markers"
       :position="m.position"
       :clickable="true"
-      :draggable="true"
+      :draggable="false"
       :icon="{url: require('../assets/washrooms.png')}"
       @click="center=toggleInfoWindow(m, index)"
     />
