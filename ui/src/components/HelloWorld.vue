@@ -21,7 +21,7 @@
       v-for="(m, index) in computed_food_markers"
       :position="m.position"
       :clickable="true"
-      :draggable="true"
+      :draggable="false"
       :icon="{url: require('../assets/food.png')}"
       @click="center=toggleInfoWindow(m, index)"
     />
@@ -239,6 +239,7 @@ a {
   width: 200px;
   height: 40px;
   font-size-adjust: inherit;
-  margin:auto
+  margin:auto;
+  fill: #42b983;
 }
 </style>
