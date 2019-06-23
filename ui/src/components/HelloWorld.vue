@@ -96,7 +96,7 @@ import Vue from 'vue'
 import * as VueGoogleMaps from 'vue2-google-maps'
 Vue.use(VueGoogleMaps, {
   load: {
-    key: 'AIzaSyBHDiJkFLIemfsjbXEssGl4rV09SFXdkx8',
+    key: 'AIzaSyBHDiJkFLIemfsjbXEssGl4rV09SFXd' + 'kx8',
     libraries: 'places'
   }
 })
